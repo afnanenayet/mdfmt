@@ -12,7 +12,7 @@ data WordWrapError a = InvalidColumnWidth Int
 -- | Word wrap some text to the desired column length
 wordWrap :: T.Text -> Int -> Either (WordWrapError a) T.Text
 wordWrap input width | width < 1 = Left $ InvalidColumnWidth width
-                     | otherwise = Right $ T.intercalate "\n" wrappedLines
+                     | otherwise = Right $ T.unlines wrappedLines
   where
     wrappedLines = map T.unwords $ gobble 0 [] $ T.words input
     gobble :: Int -> [T.Text] -> [T.Text] -> [[T.Text]]

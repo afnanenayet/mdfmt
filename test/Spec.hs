@@ -28,4 +28,3 @@ prop_wordsAreWrapped slowString width
     -- if there is a word that's longer than the given width, then the
     -- line will have to be as long as the longest word (at minimum)
     expectedLineLength = max width (maxWordSize + 1)
-
