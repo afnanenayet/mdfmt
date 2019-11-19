@@ -18,9 +18,14 @@ extra-source-files:
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
 description:         Please see the README on GitHub at <https://github.com/afnanenayet/mdfmt#readme>
+default-extensions: OverloadedStrings
 
 dependencies:
 - base >= 4.7 && < 5
+- cmark
+- optparse-applicative
+- text
+- word-wrap
 
 library:
   source-dirs: src
@@ -46,3 +51,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - mdfmt
+    - QuickCheck
