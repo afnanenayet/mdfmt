@@ -2,16 +2,16 @@ module Main where
 
 import           Options.Applicative
 import           Data.Semigroup                 ( (<>) )
-import           Data.Text.IO                  as TIO
-import           Data.Text.Lazy.IO             as TLIO
-import           CMark
-import           Control.Monad
+import qualified Data.Text.IO                  as TIO
+import qualified Data.Text                     as T
+import           CMarkGFM
 import           Data.Maybe
 
 data CliFlags = CliFlags { inputFile :: String
                          , inPlace :: Bool
                          , configFile :: Maybe String
                          , textWidth :: Maybe Int
+                         , outputFile :: Maybe String
                          } deriving (Show, Eq)
 
 -- | The default column/text width
@@ -27,15 +27,16 @@ cliParse =
         <*> switch
                 (long "in-place" <> short 'i' <> help
                     (concat
-                        [ "Whether to modify the file in-place (this is "
-                        , "a destructive operation)"
+                        [ "Whether to modify the file in-place (this is"
+                        , " a destructive operation) and can be used"
+                        , " concurrently with `--out OUT`"
                         ]
                     )
                 )
         <*> (optional $ strOption
                 (long "config" <> short 'c' <> metavar "CONFIG" <> help
                     (concat
-                        [ "[optional] The filename of a config file. If"
+                        [ "The filename of a config file. If"
                         , " this is not supplied then the program will use the"
                         , " default configuration values."
                         ]
@@ -48,19 +49,46 @@ cliParse =
                     "The desired column width of the formatted document"
                 )
             )
+        <*> (optional $ strOption
+                (long "out" <> short 'o' <> metavar "OUT" <> help
+                    (  "The path write the formatted output to. This can be "
+                    ++ "used concurrently with the `-i` flag."
+                    )
+                )
+            )
 
 -- | The options that we use with commonmark
 cmarkOptions :: [CMarkOption]
-cmarkOptions = [optUnsafe, optNormalize]
+cmarkOptions = [optUnsafe]
+
+-- | GFM extensions that are enabled for the parser. We enable all of them to
+-- stay compliant with Github.
+--
+-- TODO: with enough interest we can expose this as a command line option
+defaultCmarkExtensions :: [CMarkExtension]
+defaultCmarkExtensions = [extTable, extAutolink, extTable, extTagfilter]
+
+-- | Export the formatted contents of a file to the appropriate place given the
+-- command line arguments from the user. The fallback/default action is to
+-- write to STDOUT.
+exportOutput :: CliFlags -> T.Text -> IO ()
+exportOutput (CliFlags inFile True _ _ Nothing) contents =
+    TIO.writeFile inFile contents
+exportOutput (CliFlags _ False _ _ (Just outFile)) contents =
+    TIO.writeFile outFile contents
+exportOutput (CliFlags inFile True _ _ (Just outFile)) contents =
+    TIO.writeFile outFile contents >> TIO.writeFile inFile contents
+exportOutput _ contents = TIO.putStr contents
 
 main :: IO ()
 main = do
     args         <- execParser opts
     fileContents <- TIO.readFile (inputFile args)
-    let nodes     = commonmarkToNode cmarkOptions fileContents
+    let nodes =
+            commonmarkToNode cmarkOptions defaultCmarkExtensions fileContents
     let width     = fromMaybe defaultTextWidth (textWidth args)
     let formatted = nodeToCommonmark cmarkOptions (Just width) nodes
-    TIO.putStr formatted
+    exportOutput args formatted
   where
     opts =
         info (cliParse <**> helper)
