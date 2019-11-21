@@ -2,7 +2,6 @@ import           Test.QuickCheck
 import qualified Data.Text                     as T
 import           Data.Either
 import           Lib
-import           Text.Wrap
 
 main :: IO ()
 main = do
@@ -14,14 +13,14 @@ printWordWrap (Right text) = print text
 
 prop_wordsAreWrapped :: [Char] -> Int -> Bool
 prop_wordsAreWrapped slowString width
-    | length wrappedLines < 1 = True
-    | otherwise               = maxLineSize <= expectedLineLength
+    | width < 1                     = isLeft rawResult
+    | length (lines slowString) < 1 = True
+    | length (words slowString) < 1 = True
+    | otherwise                     = maxLineSize <= expectedLineLength
   where
-    input  = T.pack slowString
-    result = wrapText
-        (WrapSettings { preserveIndentation = True, breakLongWords = False })
-        width
-        input
+    input              = T.pack slowString
+    rawResult          = wordWrap input width
+    result             = fromRight "" rawResult
     wrappedLines       = T.lines result
     maxLineSize        = maximum $ map T.length wrappedLines
     maxWordSize        = maximum $ map T.length $ T.words input
