@@ -33,29 +33,32 @@ cliParse =
                         ]
                     )
                 )
-        <*> (optional $ strOption
-                (long "config" <> short 'c' <> metavar "CONFIG" <> help
-                    (concat
-                        [ "The filename of a config file. If"
-                        , " this is not supplied then the program will use the"
-                        , " default configuration values."
-                        ]
+        <*> optional
+                (strOption
+                    (long "config" <> short 'c' <> metavar "CONFIG" <> help
+                        (concat
+                            [ "The filename of a config file. If"
+                            , " this is not supplied then the program will use the"
+                            , " default configuration values."
+                            ]
+                        )
                     )
                 )
-            )
-        <*> (optional $ option
-                auto
-                (long "width" <> short 'w' <> metavar "WIDTH" <> help
-                    "The desired column width of the formatted document"
-                )
-            )
-        <*> (optional $ strOption
-                (long "out" <> short 'o' <> metavar "OUT" <> help
-                    (  "The path write the formatted output to. This can be "
-                    ++ "used concurrently with the `-i` flag."
+        <*> optional
+                (option
+                    auto
+                    (long "width" <> short 'w' <> metavar "WIDTH" <> help
+                        "The desired column width of the formatted document"
                     )
                 )
-            )
+        <*> optional
+                (strOption
+                    (long "out" <> short 'o' <> metavar "OUT" <> help
+                        ("The path write the formatted output to. This can be "
+                        ++ "used concurrently with the `-i` flag."
+                        )
+                    )
+                )
 
 -- | The options that we use with commonmark
 cmarkOptions :: [CMarkOption]
