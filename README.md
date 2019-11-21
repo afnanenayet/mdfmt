@@ -39,6 +39,14 @@ document, which defaults to 80.
 The config file option has not been implemented yet, mostly because the only
 configurable option is the text width.
 
+## Development
+
+This project was built using [stack](haskellstack.org). To build the project,
+use `stack build`. I also use
+[hlint](https://hackage.haskell.org/package/hlint) to lint the source. Feel
+free to open a PR if you think anything can be improved or if you want to
+contribute new features.
+
 ## Example
 
 Given the above portion of the readme, let's format it with this tool with
