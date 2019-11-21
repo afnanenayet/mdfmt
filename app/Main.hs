@@ -48,7 +48,10 @@ cliParse =
                 (option
                     auto
                     (long "width" <> short 'w' <> metavar "WIDTH" <> help
-                        "The desired column width of the formatted document"
+                        ("The desired column width of the formatted document. "
+                        ++ "If this is not supplied, the default text width "
+                        ++ "will be set to 80."
+                        )
                     )
                 )
         <*> optional
