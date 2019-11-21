@@ -28,7 +28,7 @@ dependencies:
 - word-wrap
 
 executables:
-  mdfmt-exe:
+  mdfmt:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
